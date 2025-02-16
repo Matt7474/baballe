@@ -1,0 +1,71 @@
+name: Deploy on githubPages
+
+permissions:
+
+  contents: read
+  pages: write
+  id-token: write
+
+on: 
+  push:
+    branches: 
+      - main
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest 
+
+    steps:
+
+      - name: Checkout code du depot
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: ⚙️ Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: 📦 Install dependencies
+        run: pnpm install
+
+      - name: Lancement des tests
+        run: pnpm test
+
+      - name: ⚙️ Setup Biome
+        uses: biomejs/setup-biome@v2
+        with:
+          version: latest
+
+      - name: 🎨 Run Biome
+        run: biome ci .
+
+      - name: 🏗️ Build
+        run: pnpm build
+
+      - name: 📤 Création du GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+      
+
+  deploy:
+    needs: build
+
+    runs-on: ubuntu-latest 
+
+    steps:
+      - name: 🚀 Déploiement sur GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: 🔗 URL du site déployé
+        run: echo "🔗 Votre site est disponible à ${{ steps.deployment.outputs.page_url }}"
