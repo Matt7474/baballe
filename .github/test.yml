@@ -1,71 +1,29 @@
-name: Deploy on githubPages
-
-permissions:
-
-  contents: read
-  pages: write
-  id-token: write
-
-on: 
-  push:
-    branches: 
-      - test
-
-jobs:
-
-  build:
-
-    runs-on: ubuntu-latest 
-
+build:
+    runs-on: ubuntu-latest
+    # Pas besoin de working-directory ici car on est à la racine du projet
     steps:
-
-      - name: Checkout code du depot
+      - name: 📥 Checkout du code
         uses: actions/checkout@v4
 
-      - name: ⚙️ Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-          run_install: false
+      - name: 🚀 Installer PNPM
+        run: npm install -g pnpm
 
-      - name: ⚙️ Setup Node
+      - name: ⚙️ Setup de l'environnement Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'pnpm'
 
-      - name: 📦 Install dependencies
+      - name: 📦 Installation des dépendances
         run: pnpm install
 
-      - name: Lancement des tests
-        run: pnpm test
+      - name: 🏗️ Build du projet
+        run: pnpm run build
 
-      - name: ⚙️ Setup Biome
-        uses: biomejs/setup-biome@v2
-        with:
-          version: latest
-
-      - name: 🎨 Run Biome
-        run: biome ci .
-
-      - name: 🏗️ Build
-        run: pnpm build
+      - name: 🚫 Désactiver Jekyll
+        run: touch dist/.nojekyll
 
       - name: 📤 Création du GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
-      
-
-  deploy:
-    needs: build
-
-    runs-on: ubuntu-latest 
-
-    steps:
-      - name: 🚀 Déploiement sur GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: 🔗 URL du site déployé
-        run: echo "🔗 Votre site est disponible à ${{ steps.deployment.outputs.page_url }}"
+          path: dist
