@@ -4,7 +4,7 @@ export default function Homepage() {
 	return (
 		<div className="justify-between">
 			<Link to={"/"}>Accueil</Link>
-			<Link to={"/about"}>A propos</Link>
+			<Link to={"/about"}>A propos de nous</Link>
 		</div>
 	);
 }
