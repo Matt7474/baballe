@@ -5,7 +5,7 @@ on:
     branches: 
       - master
 
-# liste des jobs à faire
+# liste des jobs à faire.
 jobs:
   build:
     runs-on: ubuntu-latest
