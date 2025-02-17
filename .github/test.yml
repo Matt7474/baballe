@@ -6,7 +6,9 @@ on:
     branches: 
       - master
 
-build:
+# liste des jobs à faire
+jobs:
+  build:
     runs-on: ubuntu-latest
     # Pas besoin de working-directory ici car on est à la racine du projet.
     steps:
@@ -33,22 +35,22 @@ build:
         with:
           path: ./dist
 
-    deploy:
+  deploy:
     # on precise que ce job ne doit commencer si build n'est pas fini
-      needs: build
+    needs: build
 
-      # on choit notre environnement d'execution des actions
-      runs-on: ubuntu-latest 
+    # on choit notre environnement d'execution des actions
+    runs-on: ubuntu-latest 
 
-      steps:
-        - name: 🚀 Déploiement sur GitHub Pages
-          # avec id on donne le nom 'deployment' à notre step, il sera utilisé pour récupérer notre url dans les outputs
-          id: deployment
-          uses: actions/deploy-pages@v4
+    steps:
+      - name: 🚀 Déploiement sur GitHub Pages
+        # avec id on donne le nom 'deployment' à notre step, il sera utilisé pour récupérer notre url dans les outputs
+        id: deployment
+        uses: actions/deploy-pages@v4
 
-        # Affichage de l'URL du site
-        - name: 🔗 URL du site déployé
-          # l'url de la page github sera disponible dans les outputs de la step ayant l'id deployment
-          # elle sera normalement de type : https://<username>.github.io/<repo>/
-          # attention faudra ajouter la base URL dans la config de Vite sinon le nom du repo ne sera prit en compte
-          run: echo "🔗 Votre site est disponible à ${{ steps.deployment.outputs.page_url }}"
+      # Affichage de l'URL du site
+      - name: 🔗 URL du site déployé
+        # l'url de la page github sera disponible dans les outputs de la step ayant l'id deployment
+        # elle sera normalement de type : https://<username>.github.io/<repo>/
+        # attention faudra ajouter la base URL dans la config de Vite sinon le nom du repo ne sera prit en compte
+        run: echo "🔗 Votre site est disponible à ${{ steps.deployment.outputs.page_url }}"
