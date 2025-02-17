@@ -1,3 +1,11 @@
+
+name: Deploy on githubPages
+
+on: 
+  push:
+    branches: 
+      - test
+
 build:
     runs-on: ubuntu-latest
     # Pas besoin de working-directory ici car on est à la racine du projet.
