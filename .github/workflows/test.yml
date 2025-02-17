@@ -20,6 +20,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
     # Pas besoin de working-directory ici car on est à la racine du projet.
     steps:
       - name: 📥 Checkout du code
