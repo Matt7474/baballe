@@ -1,6 +1,6 @@
 build:
     runs-on: ubuntu-latest
-    # Pas besoin de working-directory ici car on est à la racine du projet
+    # Pas besoin de working-directory ici car on est à la racine du projet.
     steps:
       - name: 📥 Checkout du code
         uses: actions/checkout@v4
