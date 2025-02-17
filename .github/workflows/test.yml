@@ -1,49 +1,83 @@
+# le nom de notre workflow
 name: Deploy on githubPages
 
-on: 
-  push:
-    branches: 
-      - master
-
+# On défini des permissions pour autoriser le déploiement sur GitHub Pages
+# copié collé de la doc, obligatoire pour que ça marche
 permissions:
   # Permission de lire le contenu du dépôt
   # (nécessaire pour le processus de checkout du code, comme dans l'étape actions/checkout@v4)
   contents: read
-  # Permission d'écrire sur GH Pages.
+  # Permission d'écrire sur GH Pages
   # (essentiel pour que le processus de déploiement fonctionne correctement)
   pages: write
   # Permet de créer un token
   # (peut être nécessaire pour interagir avec d'autres services ou APIs externes pour prouver l'identité du workflow ; ex. : Google Cloud, authentification OAuth…)
   id-token: write
 
-# liste des jobs à faire.
+# le trigger : quand est ce que le workflow s'execute (ici au push sur master)
+on: 
+  push:
+    branches: 
+      - main
+
+# liste des jobs à faire
 jobs:
+
   build:
-    runs-on: ubuntu-latest
-    # Pas besoin de working-directory ici car on est à la racine du projet.
+    # Utilise une machine virtuelle Ubuntu pour exécuter les actions
+    # y'aura rien d'installé dessus
+    runs-on: ubuntu-latest 
+
+    # Liste des actions
     steps:
-      - name: 📥 Checkout du code
+
+      # Étape 1: Recuperer le code (sans les node_modules)
+      - name: Checkout code du depot
         uses: actions/checkout@v4
 
-      - name: 🚀 Installer PNPM
-        run: npm install -g pnpm
+      # on utilise l'action de pnpm pour installer pnpm sur notre runner
+      - name: ⚙️ Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
 
-      - name: ⚙️ Setup de l'environnement Node.js
+      # Installer Node
+      - name: ⚙️ Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
           cache: 'pnpm'
 
-      - name: 📦 Installation des dépendances
+      # Install des dependances listées dans le package.json avec pnpm 
+      - name: 📦 Install dependencies
         run: pnpm install
 
-      - name: 🏗️ Build du projet
-        run: pnpm run build
+      # TEST et LINTER si besoin
+      - name: Lancement des tests
+        run: pnpm test
 
+      # CHECK lint et format
+      # install de la CLI de biome sur le runner
+      - name: ⚙️ Setup Biome
+        uses: biomejs/setup-biome@v2
+        with:
+          version: latest
+
+      # Lance le script ci qui correspond à un check (format + lint + imports order)
+      - name: 🎨 Run Biome
+        run: biome ci .
+
+      # Build pour avoir notre dossier dist (bundle)
+      - name: 🏗️ Build
+        run: pnpm build
+
+      # Création d'un artifact contenant notre bundle (pour l'utiliser dans le job deploy)
       - name: 📤 Création du GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
+      
 
   deploy:
     # on precise que ce job ne doit commencer si build n'est pas fini
