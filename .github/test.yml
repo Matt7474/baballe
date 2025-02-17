@@ -20,9 +20,6 @@ build:
       - name: 🏗️ Build du projet
         run: pnpm run build
 
-      - name: 🚫 Désactiver Jekyll
-        run: touch dist/.nojekyll
-
       - name: 📤 Création du GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
